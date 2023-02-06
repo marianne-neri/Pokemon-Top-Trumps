@@ -1,11 +1,14 @@
 import random
 import requests
 
-user_score = 0
-opponent_score = 0
+
 play_game = True
 
 while play_game:
+    user_score = 0
+    opponent_score = 0
+    game_round = 1
+
 
     def random_pokemon():
         pokemon_number = random.randint(1, 151)
@@ -21,56 +24,101 @@ while play_game:
 
 
     def pick_stat(user_chosen_pokemon):
+        stat_choice = input(f"\nWhich of {user_chosen_pokemon}'s stats do you want to use? "
+                            f"\n Attack [a], Defense [d] or Speed [s]: ").lower()
+        while True:
+            if stat_choice == 'a':
+                stat_choice = 'attack'
+                return stat_choice
 
-        user_stat_list = ['attack', 'defense', 'speed']
-        stat_choice = input(f"Which of {user_chosen_pokemon}'s stats do you want to use? "
-                            f"(Attack, Defense or Speed): ").lower()
-        while stat_choice not in user_stat_list:
-            stat_choice = input("Oops, you selected an invalid stat! "
-                                "Please select either Attack, Defense or Speed: ").lower()
-        return stat_choice
+            elif stat_choice == 'd':
+                stat_choice = 'defense'
+                return stat_choice
+
+            elif stat_choice == 's':
+                stat_choice = 'speed'
+                return stat_choice
+
+            else:
+                stat_choice = input("\nOops, try again! (select a, s or d) "
+                                    "\n Attack [a], Defense [d] or Speed [s]: ").lower()
 
 
-    print(f"\n~~~~ Welcome to Pokemon Top Trumps Game! ~~~~")
+    print(f"\n              Welcome to Pokemon Top Trumps Game!             ")
+    print(f"\n ***| How to win: beat Kiwi (computer) and be the first to 3 points! |***")
+
     user_name = input(f"\nWhat is your name? ").capitalize()
 
-    random_pokemon_1 = random_pokemon()
-    random_pokemon_2 = random_pokemon()
+    while user_score < 3 or opponent_score < 3:
+        print(f"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~ Round {game_round} ~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        print(f"              | {user_name}: {user_score} |  vs  | Kiwi: {opponent_score} |\n")
+        print(f"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
-    pokemon_user_selected = input(
-        f"Hey {user_name}, please select your Pokemon! "
-        f"\n{random_pokemon_1['name']} or {random_pokemon_2['name']} : ").capitalize()
+        random_pokemon_1 = random_pokemon()
+        random_pokemon_2 = random_pokemon()
 
-    while True:
-        if pokemon_user_selected == random_pokemon_1['name']:
-            stat_user_selected = pick_stat(pokemon_user_selected)
-            user_stat_value = random_pokemon_1[stat_user_selected]
-            print(f"You selected {pokemon_user_selected}: {stat_user_selected} = {user_stat_value}")
-            break
+        pokemon_user_selected = input(
+            f"Hey {user_name}, please select your Pokemon! (choose 1 or 2) "
+            f"\n{random_pokemon_1['name']} [1] or {random_pokemon_2['name']} [2] : ")
 
-        elif pokemon_user_selected == random_pokemon_2['name']:
-            stat_user_selected = pick_stat(pokemon_user_selected)
-            user_stat_value = random_pokemon_2[stat_user_selected]
-            print(f"You selected {pokemon_user_selected}: {stat_user_selected} = {user_stat_value}")
-            break
+        while True:
+            if pokemon_user_selected == '1':
+                pokemon_user_selected = random_pokemon_1['name']
+                stat_user_selected = pick_stat(pokemon_user_selected)
+                stat_user_value = random_pokemon_1[stat_user_selected]
+                print(f"\nYou chose {pokemon_user_selected}: {stat_user_selected} = {stat_user_value}")
+                break
+
+            elif pokemon_user_selected == '2':
+                pokemon_user_selected = random_pokemon_2['name']
+                stat_user_selected = pick_stat(pokemon_user_selected)
+                stat_user_value = random_pokemon_1[stat_user_selected]
+                print(f"\nYou chose {pokemon_user_selected}: {stat_user_selected} = {stat_user_value}")
+                break
+
+            else:
+                pokemon_user_selected = input(f"\nOops, you selected an invalid pokemon! "
+                                          f"\nPlease select either {random_pokemon_1['name']} [1] "
+                                          f"or {random_pokemon_2['name']} [2] : ")
+
+        opponent_pokemon = random_pokemon()
+        opponent_stat_value = opponent_pokemon[stat_user_selected]
+        print(f"Kiwi chose {opponent_pokemon['name']}: {stat_user_selected} = {opponent_stat_value}")
+
+
+        if stat_user_value > opponent_stat_value:
+            print('Result = You Win!')
+            user_score += 1
+            game_round += 1
+
+        elif stat_user_value < opponent_stat_value:
+            print('Result = You Lose!')
+            opponent_score += 1
+            game_round += 1
 
         else:
-            pokemon_user_selected = input(f"Oops, you selected an invalid pokemon! "
-                                      f"Please select either {random_pokemon_1['name']} "
-                                      f"or {random_pokemon_2['name']} : ").capitalize()
+            print('Result = Draw!')
+            game_round += 1
 
-    opponent_pokemon = random_pokemon()
-    opponent_stat_value = opponent_pokemon[stat_user_selected]
-    print(f"The opponent chose {opponent_pokemon['name']}: {stat_user_selected} = {opponent_stat_value}")
+        if user_score == 3:
+            print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print(f"              | {user_name}: {user_score} |  vs  | Kiwi: {opponent_score} |\n")
+            print(f"                THE WINNER IS: {user_name}!  ")
+            print("                Congratulations! ")
 
-    if user_stat_value > opponent_stat_value:
-        print('You Win!')
-    elif user_stat_value < opponent_stat_value:
-        print('You Lose!')
-    else:
-        print('Draw!')
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+            break
 
-    play_again = input("Play again? (Yes or No): ")
+        elif opponent_score == 3:
+            print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print(f"              | {user_name}: {user_score} |  vs  | Kiwi: {opponent_score} |\n")
+            print("                THE WINNER IS: Kiwi! ")
+            print("                Better luck next time! ")
+
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+            break
+
+    play_again = input("\nPlay again? (Yes or No): ")
     if play_again.capitalize() != 'Yes':
         play_game = False
         print("Thanks for playing!")
